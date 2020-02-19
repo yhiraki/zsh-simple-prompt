@@ -1,4 +1,3 @@
-autoload -Uz colors && colors
 autoload -Uz add-zsh-hook
 
 _zsh_simple_prompt__signal_name () {
