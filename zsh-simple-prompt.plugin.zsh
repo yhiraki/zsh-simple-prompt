@@ -101,17 +101,18 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
     echo "${t[5]}ms"
     return
   fi
-  
+
+  local s=$(( t[4] + t[5] / 1000.0 ))
+
   if [ $elapsed -lt $(( 10 * 1000 )) ]
   then
-    local s=$(( t[4] + t[5] / 1000.0 ))
-    echo "$(printf %.1f ${s})s"
+    echo "$(printf %.2f ${s})s"
     return
   fi
   
   if [ $elapsed -lt $(( 60 * 1000 )) ]
   then
-    echo "${t[4]}s${t[5]}ms"
+    echo "$(printf %.1f ${s})s"
     return
   fi
   
