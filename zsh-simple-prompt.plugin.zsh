@@ -91,6 +91,11 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
   local elapsed=$1
   local t=($(_zsh_simple_prompt__elapsed_time $1))
 
+  if [ $elapsed -lt 30 ]
+  then
+    return
+  fi
+
   if [ $elapsed -lt 500 ]
   then
     echo "${t[5]}ms"
