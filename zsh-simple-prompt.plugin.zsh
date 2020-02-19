@@ -49,15 +49,16 @@ _zsh_simple_prompt__exitcode2signal() {
   fi
 }
 
-preexec() {
+_zsh_simple_prompt__start_timer() {
   cmd=$1
   if [ -n "$cmd" ]
   then
     timer=$(($(date +%s%0N)/1000000))
   fi
 }
+add-zsh-hook preexec _zsh_simple_prompt__start_timer
 
-precmd() {
+_zsh_simple_prompt__configure_prompt() {
   local code=$?
   psvar=()
 
@@ -85,6 +86,7 @@ precmd() {
 
   local termwidth=$(( COLUMNS - 1 ))
 }
+add-zsh-hook precmd _zsh_simple_prompt__configure_prompt
 
 _zsh_simple_prompt__human_readable_elapsed_time() {
   local elapsed=$1
