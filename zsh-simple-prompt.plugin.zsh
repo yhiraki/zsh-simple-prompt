@@ -40,7 +40,7 @@ EOF
 
 _zsh_simple_prompt__exitcode2signal() {
   local code=$1
-  if [ $code -gt 128 ]
+  if [[ $code -gt 128 ]]
   then
     local sigid=$(($code - 128))
     local signame=$(_zsh_simple_prompt__signal_name $sigid)
@@ -51,7 +51,7 @@ _zsh_simple_prompt__exitcode2signal() {
 
 _zsh_simple_prompt__start_timer() {
   cmd=$1
-  if [ -n "$cmd" ]
+  if [[ -n "$cmd" ]]
   then
     timer=$(($(date +%s%0N)/1000000))
   fi
@@ -63,16 +63,16 @@ _zsh_simple_prompt__configure_prompt() {
   psvar=()
 
   local st=""
-  if [ "${code}" -gt 128 ]
+  if [[ "${code}" -gt 128 ]]
   then
     st="$(_zsh_simple_prompt__exitcode2signal $code)($(( $code - 128 )))"
-  elif [ "${code}" -ne 0 ]
+  elif [[ "${code}" -ne 0 ]]
   then
     st="${code}"
   fi
 
   local elapsed=""
-  if [ -n "$timer" ]
+  if [[ -n "$timer" ]]
   then
     local now=$(( $(date +%s%0N) / 1000000 ))
     local t=$(( $now - $timer ))
@@ -80,9 +80,9 @@ _zsh_simple_prompt__configure_prompt() {
     unset timer
   fi
 
-  [ -n "$st" ] && psvar[1]="$st "
-  [ -n "$elapsed" ] && psvar[2]="$elapsed "
-  [ -n "$psvar" ] && psvar[10]=1
+  [[ -n "$st" ]] && psvar[1]="$st "
+  [[ -n "$elapsed" ]] && psvar[2]="$elapsed "
+  [[ -n "$psvar" ]] && psvar[10]=1
 
   local termwidth=$(( COLUMNS - 1 ))
 }
@@ -92,12 +92,12 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
   local elapsed=$1
   local t=($(_zsh_simple_prompt__elapsed_time $1))
 
-  if [ $elapsed -lt 30 ]
+  if [[ $elapsed -lt 30 ]]
   then
     return
   fi
 
-  if [ $elapsed -lt 500 ]
+  if [[ $elapsed -lt 500 ]]
   then
     echo "${t[5]}ms"
     return
@@ -105,19 +105,19 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
 
   local s=$(( t[4] + t[5] / 1000.0 ))
 
-  if [ $elapsed -lt $(( 10 * 1000 )) ]
+  if [[ $elapsed -lt $(( 10 * 1000 )) ]]
   then
     echo "$(printf %.2f ${s})s"
     return
   fi
   
-  if [ $elapsed -lt $(( 60 * 1000 )) ]
+  if [[ $elapsed -lt $(( 60 * 1000 )) ]]
   then
     echo "$(printf %.1f ${s})s"
     return
   fi
   
-  if [ $elapsed -lt $(( 60 * 60 * 1000 )) ]
+  if [[ $elapsed -lt $(( 60 * 60 * 1000 )) ]]
   then
     echo "${t[3]}m${t[4]}s"
     return
