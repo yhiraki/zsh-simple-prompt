@@ -20,7 +20,9 @@ test '_zsh_simple_prompt__signal_name 1' 'SIGHUP'
 test '_zsh_simple_prompt__signal_name 10' 'SIGBUS'
 
 test '_zsh_simple_prompt__exitcode2signal 128' '' 
-test '_zsh_simple_prompt__exitcode2signal 129' 'SIGHUP' 
+test '_zsh_simple_prompt__exitcode2signal 129' 'SIGHUP'
+test '_zsh_simple_prompt__exitcode2signal 159' 'SIGUSR2'
+test '_zsh_simple_prompt__exitcode2signal 160' ''
 test '_zsh_simple_prompt__exitcode2signal 255' '' 
 
 test '_zsh_simple_prompt__human_readable_elapsed_time 499' '499ms'

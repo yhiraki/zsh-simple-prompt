@@ -43,7 +43,7 @@ EOF
 
 _zsh_simple_prompt__exitcode2signal() {
   local code=$1
-  if [[ $code -gt 128 ]]
+  if [[ $code -gt 128 && $code -le $((128 + 31)) ]]
   then
     local sigid signame
     sigid=$((code - 128))
