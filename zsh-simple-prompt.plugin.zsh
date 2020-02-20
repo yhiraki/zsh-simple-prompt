@@ -63,23 +63,26 @@ _zsh_simple_prompt__start_timer() {
 add-zsh-hook preexec _zsh_simple_prompt__start_timer
 
 _zsh_simple_prompt__configure_prompt() {
-  local code=$?
+  local code st sig
+  code=$?
   psvar=()
 
-  local st=""
-  if [[ "${code}" -gt 128 ]]
+  st=""
+  sig=$(_zsh_simple_prompt__exitcode2signal $code)
+  if [[ -n "${sig}" ]]
   then
-    st="$(_zsh_simple_prompt__exitcode2signal $code)($((code - 128)))"
+    st="${sig}($((code - 128)))"
   elif [[ "${code}" -ne 0 ]]
   then
     st="${code}"
   fi
 
-  local elapsed=""
+  local elapsed now t
+  elapsed=""
   if [[ -n "$timer" ]]
   then
-    local now=$(( $(date +%s%0N) / 1000000 ))
-    local t=$((now - timer))
+    now=$(( $(date +%s%0N) / 1000000 ))
+    t=$((now - timer))
     elapsed="$(_zsh_simple_prompt__human_readable_elapsed_time $t)"
     unset timer
   fi
