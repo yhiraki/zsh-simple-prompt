@@ -1,8 +1,9 @@
 autoload -Uz add-zsh-hook
 
-_zsh_simple_prompt__signal_name () {
+_zsh_simple_prompt__signal_name() {
   local sigs
-  sigs=$(cat << EOF
+  sigs=$(
+    cat <<EOF
 01 SIGHUP
 02 SIGINT
 03 SIGQUIT
@@ -35,7 +36,7 @@ _zsh_simple_prompt__signal_name () {
 30 SIGUSR1
 31 SIGUSR2
 EOF
-)
+  )
   local query
   query=$(printf %02d "${1}")
   echo "${sigs}" | grep "${query}" | awk '{print $2}'
@@ -43,8 +44,7 @@ EOF
 
 _zsh_simple_prompt__exitcode2signal() {
   local code=$1
-  if [[ $code -gt 128 && $code -le $((128 + 31)) ]]
-  then
+  if [[ $code -gt 128 && $code -le $((128 + 31)) ]]; then
     local sigid signame
     sigid=$((code - 128))
     signame=$(_zsh_simple_prompt__signal_name $sigid)
@@ -55,8 +55,7 @@ _zsh_simple_prompt__exitcode2signal() {
 
 _zsh_simple_prompt__start_timer() {
   cmd=$1
-  if [[ -n "$cmd" ]]
-  then
+  if [[ -n "$cmd" ]]; then
     timer=$(($(date +%s%0N) / 1000000))
   fi
 }
@@ -69,19 +68,16 @@ _zsh_simple_prompt__configure_prompt() {
   local st sig
   st=""
   sig=$(_zsh_simple_prompt__exitcode2signal $code)
-  if [[ -n "${sig}" ]]
-  then
+  if [[ -n "${sig}" ]]; then
     st="${sig}($((code - 128)))"
-  elif [[ "${code}" -ne 0 ]]
-  then
+  elif [[ "${code}" -ne 0 ]]; then
     st="${code}"
   fi
 
   local elapsed now t
   elapsed=""
-  if [[ -n "$timer" ]]
-  then
-    now=$(( $(date +%s%0N) / 1000000 ))
+  if [[ -n "$timer" ]]; then
+    now=$(($(date +%s%0N) / 1000000))
     t=$((now - timer))
     elapsed="$(_zsh_simple_prompt__human_readable_elapsed_time $t)"
     unset timer
@@ -97,13 +93,11 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
   local elapsed=$1
   local t=($(_zsh_simple_prompt__elapsed_time "$1"))
 
-  if [[ $elapsed -lt 30 ]]
-  then
+  if [[ $elapsed -lt 30 ]]; then
     return
   fi
 
-  if [[ $elapsed -lt 500 ]]
-  then
+  if [[ $elapsed -lt 500 ]]; then
     echo "${t[5]}ms"
     return
   fi
@@ -111,22 +105,19 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
   local s
   s=$(echo "${t[4]} + (${t[5]} / 1000.0)" | bc -l)
 
-  if [[ $elapsed -lt $(( 10 * 1000 )) ]]
-  then
+  if [[ $elapsed -lt $((10 * 1000)) ]]; then
     printf %.2f "${s}"
     echo 's'
     return
   fi
-  
-  if [[ $elapsed -lt $(( 60 * 1000 )) ]]
-  then
+
+  if [[ $elapsed -lt $((60 * 1000)) ]]; then
     printf %.1f "${s}"
     echo 's'
     return
   fi
-  
-  if [[ $elapsed -lt $(( 60 * 60 * 1000 )) ]]
-  then
+
+  if [[ $elapsed -lt $((60 * 60 * 1000)) ]]; then
     echo "${t[3]}m${t[4]}s"
     return
   fi
