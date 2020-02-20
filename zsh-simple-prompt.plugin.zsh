@@ -1,7 +1,8 @@
 autoload -Uz add-zsh-hook
 
 _zsh_simple_prompt__signal_name () {
-  local sigs=$(cat << EOF
+  local sigs
+  sigs=$(cat << EOF
 01 SIGHUP
 02 SIGINT
 03 SIGQUIT
@@ -35,15 +36,18 @@ _zsh_simple_prompt__signal_name () {
 31 SIGUSR2
 EOF
 )
-  echo $sigs | grep $(printf %02d $1) | awk '{print $2}'
+  local query
+  query=$(printf %02d "${1}")
+  echo "${sigs}" | grep "${query}" | awk '{print $2}'
 }
 
 _zsh_simple_prompt__exitcode2signal() {
   local code=$1
   if [[ $code -gt 128 ]]
   then
-    local sigid=$(($code - 128))
-    local signame=$(_zsh_simple_prompt__signal_name $sigid)
+    local sigid signame
+    sigid=$((code - 128))
+    signame=$(_zsh_simple_prompt__signal_name $sigid)
     echo "${signame}"
     return
   fi
@@ -53,7 +57,7 @@ _zsh_simple_prompt__start_timer() {
   cmd=$1
   if [[ -n "$cmd" ]]
   then
-    timer=$(($(date +%s%0N)/1000000))
+    timer=$(($(date +%s%0N) / 1000000))
   fi
 }
 add-zsh-hook preexec _zsh_simple_prompt__start_timer
@@ -65,7 +69,7 @@ _zsh_simple_prompt__configure_prompt() {
   local st=""
   if [[ "${code}" -gt 128 ]]
   then
-    st="$(_zsh_simple_prompt__exitcode2signal $code)($(( $code - 128 )))"
+    st="$(_zsh_simple_prompt__exitcode2signal $code)($((code - 128)))"
   elif [[ "${code}" -ne 0 ]]
   then
     st="${code}"
@@ -75,22 +79,20 @@ _zsh_simple_prompt__configure_prompt() {
   if [[ -n "$timer" ]]
   then
     local now=$(( $(date +%s%0N) / 1000000 ))
-    local t=$(( $now - $timer ))
+    local t=$((now - timer))
     elapsed="$(_zsh_simple_prompt__human_readable_elapsed_time $t)"
     unset timer
   fi
 
   [[ -n "$st" ]] && psvar[1]="$st "
   [[ -n "$elapsed" ]] && psvar[2]="$elapsed "
-  [[ -n "$psvar" ]] && psvar[10]=1
-
-  local termwidth=$(( COLUMNS - 1 ))
+  [[ -n "${psvar[*]}" ]] && psvar[10]=1
 }
 add-zsh-hook precmd _zsh_simple_prompt__configure_prompt
 
 _zsh_simple_prompt__human_readable_elapsed_time() {
   local elapsed=$1
-  local t=($(_zsh_simple_prompt__elapsed_time $1))
+  local t=($(_zsh_simple_prompt__elapsed_time "$1"))
 
   if [[ $elapsed -lt 30 ]]
   then
@@ -103,17 +105,20 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
     return
   fi
 
-  local s=$(( t[4] + t[5] / 1000.0 ))
+  local s
+  s=$(echo "${t[4]} + (${t[5]} / 1000.0)" | bc -l)
 
   if [[ $elapsed -lt $(( 10 * 1000 )) ]]
   then
-    echo "$(printf %.2f ${s})s"
+    printf %.2f "${s}"
+    echo 's'
     return
   fi
   
   if [[ $elapsed -lt $(( 60 * 1000 )) ]]
   then
-    echo "$(printf %.1f ${s})s"
+    printf %.1f "${s}"
+    echo 's'
     return
   fi
   
@@ -130,16 +135,16 @@ _zsh_simple_prompt__elapsed_time() {
   local ret elapsed=$1
 
   local msec=1
-  local sec=$(( $msec * 1000 ))
-  local min=$(( $sec * 60 ))
-  local hour=$(( $min * 60 ))
+  local sec=$((msec * 1000))
+  local min=$((sec * 60))
+  local hour=$((min * 60))
 
   local ret=()
   ret+=(0)
-  ret+=($(( $elapsed / $hour )))
-  ret+=($(( $elapsed / $min % 60 )))
-  ret+=($(( $elapsed / $sec % 60 )))
-  ret+=($(( $elapsed / $msec % 1000 )))
+  ret+=($((elapsed / hour)))
+  ret+=($((elapsed / min % 60)))
+  ret+=($((elapsed / sec % 60)))
+  ret+=($((elapsed / msec % 1000)))
 
   # days hours mins secs msecs
   echo ${ret[@]}
