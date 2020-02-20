@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install zsh
+      run: |
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        brew install zsh
+    - name: Run test
+      run: |
+        zsh test/test.zsh
