@@ -63,10 +63,10 @@ _zsh_simple_prompt__start_timer() {
 add-zsh-hook preexec _zsh_simple_prompt__start_timer
 
 _zsh_simple_prompt__configure_prompt() {
-  local code st sig
-  code=$?
+  local code=$?
   psvar=()
 
+  local st sig
   st=""
   sig=$(_zsh_simple_prompt__exitcode2signal $code)
   if [[ -n "${sig}" ]]
