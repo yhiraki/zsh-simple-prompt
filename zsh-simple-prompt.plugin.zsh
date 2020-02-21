@@ -93,7 +93,7 @@ _zsh_simple_prompt__human_readable_elapsed_time() {
   local elapsed=$1
   local t=($(_zsh_simple_prompt__elapsed_time "$1"))
 
-  if [[ $elapsed -lt 30 ]]; then
+  if [[ $elapsed -lt ${SPL_PROMPT_CMD_TIME_MIN} ]]; then
     return
   fi
 
@@ -144,4 +144,5 @@ _zsh_simple_prompt__elapsed_time() {
   echo ${ret[@]}
 }
 
+SPL_PROMPT_CMD_TIME_MIN=50
 PROMPT="%10(v|⇢ |)%F{yellow}%1v%f%F{blue}%2v%f%10(v|"$'\n'"|)""%(?,%F{green},%F{red})%B$%b%f "
