@@ -57,7 +57,8 @@ _zsh_simple_prompt__exitcode2signal() {
 }
 
 _zsh_simple_prompt__start_timer() {
-  cmd=$1
+  local cmd
+  cmd="$1"
   if [[ -n "$cmd" ]]; then
     timer=$(($(date +%s%0N) / 1000000))
   fi
