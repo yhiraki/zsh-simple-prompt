@@ -1,5 +1,8 @@
 autoload -Uz add-zsh-hook
 
+NOTIFIER=$(command -v terminal-notifier)
+CURRENT_CMD=""
+
 _zsh_simple_prompt__signal_name() {
   local sigs
   sigs=$(
@@ -61,6 +64,11 @@ _zsh_simple_prompt__start_timer() {
 }
 add-zsh-hook preexec _zsh_simple_prompt__start_timer
 
+_zsh_simple_prompt__register_command_name() {
+  CURRENT_CMD="$1"
+}
+add-zsh-hook preexec _zsh_simple_prompt__register_command_name
+
 _zsh_simple_prompt__configure_prompt() {
   local code=$?
   psvar=()
@@ -86,6 +94,17 @@ _zsh_simple_prompt__configure_prompt() {
   [[ -n "$st" ]] && psvar[1]="$st "
   [[ -n "$elapsed" ]] && psvar[2]="$elapsed "
   [[ -n "${psvar[*]}" ]] && psvar[10]=1
+
+  if [[ ${t} -ge ${SPL_PROMPT_NOTIFY_TIME_MIN} && -n "${NOTIFIER}" ]]; then
+    local result
+    [[ ${code} -eq 0 ]] &&
+      result="DONE 👍" ||
+      result="FAILED ‼️"
+    ${NOTIFIER} \
+      -title "${result}" \
+      -subtitle "${CURRENT_CMD}" \
+      -message "${psvar[1]}${psvar[2]}"
+  fi
 }
 add-zsh-hook precmd _zsh_simple_prompt__configure_prompt
 
@@ -145,4 +164,5 @@ _zsh_simple_prompt__elapsed_time() {
 }
 
 SPL_PROMPT_CMD_TIME_MIN=50
+SPL_PROMPT_NOTIFY_TIME_MIN=60000
 PROMPT="%10(v|⇢ |)%F{yellow}%1v%f%F{blue}%2v%f%10(v|"$'\n'"|)""%(?,%F{green},%F{red})%B$%b%f "
