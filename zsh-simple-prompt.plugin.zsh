@@ -92,7 +92,7 @@ _zsh_simple_prompt__configure_prompt() {
     unset timer
   fi
 
-  [[ -n "$st" ]] && psvar[1]="$st "
+  [[ -n "$st" && -n "${CURRENT_CMD}" ]] && psvar[1]="$st "
   [[ -n "$elapsed" ]] && psvar[2]="$elapsed "
   [[ -n "${psvar[*]}" ]] && psvar[10]=1
 
@@ -106,6 +106,8 @@ _zsh_simple_prompt__configure_prompt() {
       -subtitle "${CURRENT_CMD}" \
       -message "${psvar[1]}${psvar[2]}"
   fi
+
+  unset CURRENT_CMD
 }
 add-zsh-hook precmd _zsh_simple_prompt__configure_prompt
 
