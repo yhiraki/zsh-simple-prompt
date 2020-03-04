@@ -166,6 +166,6 @@ _zsh_simple_prompt__elapsed_time() {
   echo ${ret[@]}
 }
 
-SPL_PROMPT_CMD_TIME_MIN=50
-SPL_PROMPT_NOTIFY_TIME_MIN=60000
+SPL_PROMPT_CMD_TIME_MIN=${SPL_PROMPT_CMD_TIME_MIN:-50}
+SPL_PROMPT_NOTIFY_TIME_MIN=${SPL_PROMPT_NOTIFY_TIME_MIN:-60000}
 PROMPT="%10(v|⇢ |)%F{yellow}%1v%f%F{blue}%2v%f%10(v|"$'\n'"|)""%(?,%F{green},%F{red})%B$%b%f "
