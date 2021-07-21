@@ -60,7 +60,7 @@ _zsh_simple_prompt__start_timer() {
   local cmd
   cmd="$1"
   if [[ -n "$cmd" ]]; then
-    timer=$(($(date +%s%0N) / 1000000))
+    timer=$(($(gdate +%s%0N) / 1000000))
   fi
 }
 add-zsh-hook preexec _zsh_simple_prompt__start_timer
@@ -86,7 +86,7 @@ _zsh_simple_prompt__configure_prompt() {
   local elapsed now t
   elapsed=""
   if [[ -n "$timer" ]]; then
-    now=$(($(date +%s%0N) / 1000000))
+    now=$(($(gdate +%s%0N) / 1000000))
     t=$((now - timer))
     elapsed="$(_zsh_simple_prompt__human_readable_elapsed_time $t)"
     unset timer
