@@ -3,6 +3,10 @@ autoload -Uz add-zsh-hook
 NOTIFIER=$(command -v terminal-notifier)
 CURRENT_CMD=""
 
+_zsh_simple_prompt__time() {
+  date +%s%S
+}
+
 _zsh_simple_prompt__signal_name() {
   local sigs
   sigs=$(
@@ -60,7 +64,7 @@ _zsh_simple_prompt__start_timer() {
   local cmd
   cmd="$1"
   if [[ -n "$cmd" ]]; then
-    timer=$(($(gdate +%s%0N) / 1000000))
+    timer=$(_zsh_simple_prompt__time)
   fi
 }
 add-zsh-hook preexec _zsh_simple_prompt__start_timer
@@ -86,7 +90,7 @@ _zsh_simple_prompt__configure_prompt() {
   local elapsed now t
   elapsed=""
   if [[ -n "$timer" ]]; then
-    now=$(($(gdate +%s%0N) / 1000000))
+    now=$(_zsh_simple_prompt__time)
     t=$((now - timer))
     elapsed="$(_zsh_simple_prompt__human_readable_elapsed_time $t)"
     unset timer
@@ -112,58 +116,19 @@ _zsh_simple_prompt__configure_prompt() {
 add-zsh-hook precmd _zsh_simple_prompt__configure_prompt
 
 _zsh_simple_prompt__human_readable_elapsed_time() {
-  local elapsed=$1
-  local t=($(_zsh_simple_prompt__elapsed_time "$1"))
-
-  if [[ $elapsed -lt ${SPL_PROMPT_CMD_TIME_MIN} ]]; then
-    return
-  fi
-
-  if [[ $elapsed -lt 500 ]]; then
-    echo "${t[5]}ms"
-    return
-  fi
-
-  local s
-  s=$(echo "${t[4]} + (${t[5]} / 1000.0)" | bc -l)
-
-  if [[ $elapsed -lt $((10 * 1000)) ]]; then
-    printf %.2f "${s}"
-    echo 's'
-    return
-  fi
-
-  if [[ $elapsed -lt $((60 * 1000)) ]]; then
-    printf %.1f "${s}"
-    echo 's'
-    return
-  fi
-
-  if [[ $elapsed -lt $((60 * 60 * 1000)) ]]; then
-    echo "${t[3]}m${t[4]}s"
-    return
-  fi
-
-  echo "${t[2]}h${t[3]}m"
-}
-
-_zsh_simple_prompt__elapsed_time() {
-  local ret elapsed=$1
-
-  local msec=1
-  local sec=$((msec * 1000))
-  local min=$((sec * 60))
-  local hour=$((min * 60))
-
-  local ret=()
-  ret+=(0)
-  ret+=($((elapsed / hour)))
-  ret+=($((elapsed / min % 60)))
-  ret+=($((elapsed / sec % 60)))
-  ret+=($((elapsed / msec % 1000)))
-
-  # days hours mins secs msecs
-  echo ${ret[@]}
+  local o=''
+  local t=$(($1 / 100))
+  local ms=$(cut -b 2- <<<$(($1 % 100 + 100))) # 1.11 → 11, 1.1 → 10, 1.01 → 01
+  t=$(cut -d. -f 1 <<<$t)
+  h=$(($t / 3600))
+  ((h > 0)) && o="${h}h"
+  t=$((t % 3600))
+  m=$(($t / 60))
+  ((m > 0)) && o="${o}${m}m"
+  s=$((t % 60))
+  ((h == 0)) && ((m == 0)) && s="${s}.${ms}"
+  [[ "$(bc <<<"$s > 0")" -eq 1 ]] && o="${o}${s}s"
+  echo "${o}"
 }
 
 SPL_PROMPT_CMD_TIME_MIN=${SPL_PROMPT_CMD_TIME_MIN:-50}
