@@ -4,7 +4,11 @@ NOTIFIER=$(command -v terminal-notifier)
 CURRENT_CMD=""
 
 _zsh_simple_prompt__time() {
-  date +%s%S
+  if date +%N | grep -v N >/dev/null; then
+    date +%s%3N
+  else
+    date +%s000
+  fi
 }
 
 _zsh_simple_prompt__signal_name() {
@@ -97,8 +101,10 @@ _zsh_simple_prompt__configure_prompt() {
   fi
 
   [[ -n "$st" && -n "${CURRENT_CMD}" ]] && psvar[1]="$st "
-  [[ -n "$elapsed" ]] && psvar[2]="$elapsed "
-  [[ -n "${psvar[*]}" ]] && psvar[10]=1
+  if [[ "${SPL_PROMPT_CMD_TIME_MIN}" -lt "$t" ]] ; then
+	[[ -n "$elapsed" ]] && psvar[2]="$elapsed "
+	[[ -n "${psvar[*]}" ]] && psvar[10]=1
+  fi
 
   if [[ ${t} -ge ${SPL_PROMPT_NOTIFY_TIME_MIN} && -n "${NOTIFIER}" ]]; then
     local result
@@ -117,8 +123,8 @@ add-zsh-hook precmd _zsh_simple_prompt__configure_prompt
 
 _zsh_simple_prompt__human_readable_elapsed_time() {
   local o=''
-  local t=$(($1 / 100))
-  local ms=$(cut -b 2- <<<$(($1 % 100 + 100))) # 1.11 → 11, 1.1 → 10, 1.01 → 01
+  local t=$(($1 / 1000))
+  local ms=$(($1 % 1000)) # 1.11 → 11, 1.1 → 10, 1.01 → 01
   t=$(cut -d. -f 1 <<<$t)
   h=$(($t / 3600))
   ((h > 0)) && o="${h}h"
