@@ -100,10 +100,13 @@ _zsh_simple_prompt__configure_prompt() {
     unset timer
   fi
 
-  [[ -n "$st" && -n "${CURRENT_CMD}" ]] && psvar[1]="$st "
-  if [[ "${SPL_PROMPT_CMD_TIME_MIN}" -lt "$t" ]] ; then
-	[[ -n "$elapsed" ]] && psvar[2]="$elapsed "
-	[[ -n "${psvar[*]}" ]] && psvar[10]=1
+  if [[ -n "$st" && -n "${CURRENT_CMD}" ]]; then
+    psvar[1]="$st "
+    [[ -n "${psvar[*]}" ]] && psvar[10]=1
+  fi
+  if [[ "${SPL_PROMPT_CMD_TIME_MIN}" -lt "$t" ]]; then
+    [[ -n "$elapsed" ]] && psvar[2]="$elapsed "
+    [[ -n "${psvar[*]}" ]] && psvar[10]=1
   fi
 
   if [[ ${t} -ge ${SPL_PROMPT_NOTIFY_TIME_MIN} && -n "${NOTIFIER}" ]]; then
